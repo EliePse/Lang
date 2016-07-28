@@ -1,0 +1,16 @@
+{
+	"name": "eliepse/lang",
+	"description": "A simple language package for small websites",
+	"type": "library",
+	"license": "MIT",
+	"version": "0.1.0-dev",
+	"time": "2016-07-28",
+	"minimum-stability": "dev",
+	"authors": [
+		{
+			"name": "Elie Meignan",
+			"email": "contact@eliepse.fr"
+		}
+	],
+	"require": {}
+}
