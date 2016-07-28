@@ -19,7 +19,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Eliepse\\Lang": "src"
+			"Eliepse\\Lang\\": "src"
 		}
 	}
 }
