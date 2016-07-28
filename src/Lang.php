@@ -10,22 +10,30 @@ class Lang
 	private static $_instance;
 
 	/* Connfigurations  */
-	protected $root_path;
-	private $cache = false; // TODO Système de cache
-	private $languages_relative_path = 'ressources/languages/';
-	private $language_full_path;
-	private $cookie_spec = [
-		'name'       => 'lang',
-		'expireTime' => 60 * 60 * 24 * 7,
-		'path'       => '/',
-		'domain'     => null,
-	];
-	private $default_index = 'fr';
-	private $indexes = [
-		'fr' => 'fr',
+	private $root_path;
+	private $_fillable_properties = [
+		'cookie',
+		'default_index',
+		'languages_path',
+		'indexes',
+		'cache',
+		'debug',
 	];
 
+	private $cache = false; // TODO Système de cache
+	private $languages_path = 'ressources/languages/';
+	private $current_language_path;
+	private $cookie_prefix = 'myapp';
+	private $cookie_expire = 60 * 60 * 24 * 7;
+	private $cookie_path = '/';
+	private $cookie_domain = null;
+	private $default_index = 'fr';
+
 	/* Working values  */
+	private $indexes = [
+		'fr' => 'fr',
+		'us' => 'us',
+	];
 	private $current_index;
 	private $chunks = [];
 
@@ -34,28 +42,20 @@ class Lang
 	private function __construct($loc)
 	{
 
-		$rootpath = explode('\\', __DIR__);
-
-		if (count($rootpath) === 1)
-			$rootpath = explode('/', __DIR__);
-
-		for ($i = 3; $i > 0; $i--) {
-			array_pop($rootpath);
-		}
-
-		$this->root_path = implode('/', $rootpath);
+		$this->root_path = str_replace('\\', '/', realpath(__DIR__ . '/../../../../'));
 
 		$configs = include $this->root_path . '/config/lang_config.php';
 
 		// Fill the configurations
-		foreach ($configs as $key => $val) {
+		foreach ($configs as $prop => $prop_val) {
 
-			if (property_exists(__CLASS__, $key)) {
-				$this->$key = $val;
+			if (empty($this->_fillable_properties[$prop]) && property_exists(__CLASS__, $prop)) {
+				$this->$prop = $prop_val;
 			}
 
 		}
 
+		// Check the language to use
 		if (!empty($loc)) {
 			$this->setLanguage($loc);
 		} else {
@@ -63,9 +63,9 @@ class Lang
 		}
 
 		// Get available chunks
-		$this->language_full_path = $this->root_path . '/' . $this->languages_relative_path . $this->current_index . '/';
+		$this->current_language_path = $this->root_path . '/' . $this->languages_path . $this->current_index . '/';
 
-		$directory = glob($this->language_full_path . '*.php', GLOB_NOSORT);
+		$directory = glob($this->current_language_path . '*.php', GLOB_NOSORT);
 
 		if ($directory !== false) {
 
@@ -85,10 +85,10 @@ class Lang
 
 		$this->current_index = $this->indexes[$accepted];
 
-		setcookie($this->cookie_spec['name'], $this->current_index,
-			time() + $this->cookie_spec['expireTime'],
-			$this->cookie_spec['path'],
-			$this->cookie_spec['domain']);
+		setcookie($this->cookie_prefix . '_lang', $this->current_index,
+			time() + $this->cookie_expire,
+			$this->cookie_path,
+			$this->cookie_domain);
 
 	}
 
@@ -98,8 +98,8 @@ class Lang
 		if (!empty($_GET['lang']))
 			$this->setLanguage(htmlentities($_GET['lang']));
 
-		elseif (!empty($_COOKIE[$this->cookie_spec['name']]))
-			$this->setLanguage(htmlentities($_COOKIE['lang']));
+		elseif (!empty($_COOKIE[$this->cookie_prefix . '_lang']))
+			$this->setLanguage(htmlentities($_COOKIE[$this->cookie_prefix . '_lang']));
 
 		elseif (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE']))
 			$this->setLanguage(Locale::acceptFromHttp(htmlentities($_SERVER['HTTP_ACCEPT_LANGUAGE'])));
