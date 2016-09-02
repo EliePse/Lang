@@ -20,7 +20,7 @@ class Lang
 		'debug',
 	];
 
-	private $cache = false; // TODO Système de cache
+//	private $cache = false; // TODO Système de cache
 	private $languages_path = 'ressources/languages/';
 	private $current_language_path;
 	private $cookie_prefix = 'myapp';
@@ -44,7 +44,7 @@ class Lang
 
 		$this->root_path = str_replace('\\', '/', realpath(__DIR__ . '/../../../../'));
 
-		$configs = include $this->root_path . '/config/lang_config.php';
+		$configs = include $this->root_path . '/config/lang.php';
 
 		// Fill the configurations
 		foreach ($configs as $prop => $prop_val) {
@@ -81,7 +81,7 @@ class Lang
 	private function setLanguage($index)
 	{
 
-		$accepted = Locale::lookup(array_keys($this->indexes), $index, $this->default_index);
+		$accepted = Locale::lookup(array_keys($this->indexes), $index, false, $this->default_index);
 
 		$this->current_index = $this->indexes[$accepted];
 
