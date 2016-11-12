@@ -2,6 +2,9 @@
 
 namespace Eliepse\Lang;
 
+
+use Eliepse\Config\ConfigFactory;
+use Exception;
 use Locale;
 
 class Lang
@@ -12,45 +15,44 @@ class Lang
 	/* Connfigurations  */
 	private $root_path;
 	private $_fillable_properties = [
-		'cookie',
-		'default_index',
-		'languages_path',
-		'indexes',
-		'cache',
-		'debug',
+		'cookie_expire',
+		'cookie_path',
+		'cookie_domain',
+		'cookie_prefix',
+		'default_local',
+		'local_enabled',
+		'language_folder',
 	];
 
 //	private $cache = false; // TODO Système de cache
-	private $languages_path = 'ressources/languages/';
+	private $language_folder = 'ressources/languages/';
 	private $current_language_path;
 	private $cookie_prefix = 'myapp';
 	private $cookie_expire = 60 * 60 * 24 * 7;
 	private $cookie_path = '/';
 	private $cookie_domain = null;
-	private $default_index = 'fr';
+	private $default_local = 'fr';
 
 	/* Working values  */
-	private $indexes = [
-		'fr' => 'fr',
-		'us' => 'us',
-	];
-	private $current_index;
+	private $local_enabled = [];
+	private $current_local;
 	private $chunks = [];
 
-//	private $jumper_path = ''; // TODO Système de jumper
+//	private $jumper_path = ''; // TODO Système de jumper -> via un OBJET ???
 
-	private function __construct($loc)
+	private function __construct($loc = null)
 	{
 
 		$this->root_path = str_replace('\\', '/', realpath(__DIR__ . '/../../../../'));
 
-		$configs = include $this->root_path . '/config/lang.php';
+		$configs = ConfigFactory::getConfig("lang");
 
 		// Fill the configurations
-		foreach ($configs as $prop => $prop_val) {
+		foreach ($this->_fillable_properties as $prop_name) {
 
-			if (empty($this->_fillable_properties[$prop]) && property_exists(__CLASS__, $prop)) {
-				$this->$prop = $prop_val;
+			try {
+				$this->$prop_name = $configs->get($prop_name);
+			} catch (Exception $e) {
 			}
 
 		}
@@ -63,7 +65,7 @@ class Lang
 		}
 
 		// Get available chunks
-		$this->current_language_path = $this->root_path . '/' . $this->languages_path . $this->current_index . '/';
+		$this->current_language_path = $this->root_path . '/' . $this->language_folder . $this->current_local . '/';
 
 		$directory = glob($this->current_language_path . '*.php', GLOB_NOSORT);
 
@@ -81,11 +83,11 @@ class Lang
 	private function setLanguage($index)
 	{
 
-		$accepted = Locale::lookup(array_keys($this->indexes), $index, false, $this->default_index);
+		$accepted = Locale::lookup(array_keys($this->local_enabled), $index, false, $this->default_local);
 
-		$this->current_index = $this->indexes[$accepted];
+		$this->current_local = $this->local_enabled[$accepted];
 
-		setcookie($this->cookie_prefix . '_lang', $this->current_index,
+		setcookie($this->cookie_prefix . '_lang', $this->current_local,
 			time() + $this->cookie_expire,
 			$this->cookie_path,
 			$this->cookie_domain);
@@ -105,7 +107,7 @@ class Lang
 			$this->setLanguage(Locale::acceptFromHttp(htmlentities($_SERVER['HTTP_ACCEPT_LANGUAGE'])));
 
 		else
-			$this->current_index = $this->default_index;
+			$this->current_local = $this->default_local;
 
 	}
 
@@ -125,7 +127,7 @@ class Lang
 
 	/**
 	 * @param string $path Le chemin vers l'élément
-	 * @param bool $echo
+	 * @param bool   $echo
 	 * @return object|string
 	 */
 	public function get($path, $echo = false)
@@ -149,10 +151,9 @@ class Lang
 
 		if ($echo === true) {
 			echo $result;
-			return;
-		} else {
-			return $result;
 		}
+
+		return $result;
 
 	}
 
@@ -160,7 +161,7 @@ class Lang
 	 * @param $name string Le nom du Chunk à récupérer
 	 * @return bool|Chunk Retour
 	 */
-	public function getChunk($name)
+	protected function getChunk($name)
 	{
 
 		if (array_key_exists($name, $this->chunks)) {

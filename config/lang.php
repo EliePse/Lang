@@ -2,19 +2,23 @@
 
 return [
 
-	"cookie-expire" => 2592000,
-	"cookie-path" => "/",
-	"cookie-domain" => null,
+	"cookie_expire" => 2592000,
+	"cookie_path" => "/",
+	"cookie_domain" => null,
+	"cookie_prefix" => "myapp",
 
-	"default-local" => "fr",
+	"default_local" => "fr",
 
-	"local-enabled" => [
+	"local_enabled" => [
 		"fr" => "fr"
 	],
+//	"local-enabled" => [
+//		"fr" => ["fr", "ca"]
+//	],
 
-	"source-folder" => "resources/lang/",
+	"language_folder" => "ressources/languages/",
 
-	"local-force-file" => [],
+//	"local-force-file" => [],
 
 //	"local-blacklist" => [],
 
