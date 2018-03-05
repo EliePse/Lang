@@ -1,39 +1,39 @@
-#Lang
+# Lang
 
 A simple PHP language manager for small projects.
 
-##Features
+## Features
 
-####Actually
+#### Actually
 
 - Automated language detection (from request header)
 - Config file
 - Easy-to-use implementation
 
-####Todo
+#### Todo
 
 - Autofill strings by patterns (*Mustache* like)
 - Cache possibility
 - Jumpers (to avoid long paths)
 
-##Install
+## Install
 
 Todo
 
-##Config
+## Config
 
 Todo
 
 ##Use
 
-####Languages structure
+#### Languages structure
 
 Todo
 
-####Basic usage
+#### Basic usage
 
 Todo
 
-####Advence usage
+#### Advance usage
 
 Todo
