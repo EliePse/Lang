@@ -5,7 +5,7 @@ namespace Eliepse\Lang;
 
 use Eliepse\Config\ConfigFactory;
 use Exception;
-use Locale;
+use /Locale;
 
 class Lang
 {
