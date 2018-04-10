@@ -1,3 +1,9 @@
+**!=====================================!**
+
+**! This repository is deprecated. He's only here as archive !**
+
+**!=====================================!**
+
 # Lang
 
 A simple PHP language manager for small projects.
